@@ -22,7 +22,7 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
-from Customer.views import Auth,CParcel,City,Country,Test
+from Customer.views import Auth,CParcel,City,Country,Test,Raster
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -44,6 +44,7 @@ urlpatterns = [
     path('city/',City.as_view(), name='city'),
     path('auth/' ,Auth.as_view(), name='auth'),
     path('test',Test.as_view(), name='test'),
+    path('raster/',Raster.as_view(), name='raster'),
 
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
