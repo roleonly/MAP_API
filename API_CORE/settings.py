@@ -29,7 +29,12 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
+from datetime import timedelta
 
+SIMPLE_JWT = {
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True,
+}
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
