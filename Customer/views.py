@@ -137,7 +137,7 @@ class Test(APIView):
         return HttpResponse('OK')
 
 class Raster(APIView):
-    permission_classes = (AllowAny, )
+    permission_classes = (IsAuthenticated, )
     
     def get(self, request, format=None):
         cId=request.query_params['cparcel']

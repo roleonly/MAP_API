@@ -12,3 +12,10 @@ raster2pgsql.exe -I -c -s 4326 -t 100x100 -F -M E:\DATA\* public.worldmap | psql
 raster2pgsql.exe -I -a -s 4326 -t 100x100 -F -M E:\DATA\* public.worldmap | psql -U <username> --dbname=DB --host=127.0.0.1 --port=5432
 raster2pgsql.exe -I -a -C -s 4326 -t 100x100 -F -M E:\DATA\* public.worldmap | psql -U <username> --dbname=DB --host=127.0.0.1 --port=5432
 
+
+endpoints
+/raster/?cparcel=(int)      IsAuthenticated
+/country/?name=<string>     AllowAny            if parameter null u get countrylist
+/city/?name=<string>        AllowAny            if parameter null u get citylist
+/auth/                      AllowAny            model user(username,email,password)
+/cparcel/                   IsAuthenticated     get/post/delete
