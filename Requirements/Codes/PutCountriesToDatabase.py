@@ -1,14 +1,15 @@
 
 
-
-
-
-
 from Customer.models import Parcel
 import json
 from django.contrib.gis.geos import fromstr
 
 from django.contrib.gis.geos import MultiPolygon
+
+def delparcels():
+    parcels=Parcel.objects.all()
+    for i in parcels:
+        i.delete()
 
 def PutCountriesToDatabase():
     file=open('Requirements/files/countries.geojson')
@@ -16,7 +17,7 @@ def PutCountriesToDatabase():
     for i in data['features']:
        
         countryMap=Parcel()
-        countryMap.Name=i['properties']['ADMIN']
+        countryMap.name=i['properties']['ADMIN']
         countryMap.type=2
     
         if i['geometry']['type']=="MultiPolygon" :
@@ -35,7 +36,7 @@ def PutCitiesToDatabase():
     for i in data['features']:
         
         city=Parcel()
-        city.Name=i['properties']['name']
+        city.name=i['properties']['name']
         city.type=1
     
         if i['geometry']['type']=="MultiPolygon" :
@@ -48,5 +49,3 @@ def PutCitiesToDatabase():
             
         city.save()
 
-PutCountriesToDatabase()
-#PutCitiesToDatabase()

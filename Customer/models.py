@@ -19,7 +19,7 @@ class Customer(models.Model):
         db_table = 'customer'
 
 class CustomerParcel(models.Model):
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=100)
     owner = models.ForeignKey(Customer, on_delete=models.CASCADE)
     poly= models.MultiPolygonField(srid=4326)
     
@@ -40,7 +40,7 @@ class Parcel(models.Model):
     ParcelType=((1,'City'),
                 (2,'Country'))
 
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=100)
     type = models.IntegerField(choices=ParcelType, default=1)
     poly= models.MultiPolygonField(srid=4326)
     
