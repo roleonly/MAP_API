@@ -40,7 +40,7 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('cparcel/',CParcel.as_view(), name='cparcel'),
-    path('country',Country.as_view(), name='country'),
+    path('country/',Country.as_view(), name='country'),
     path('city/',City.as_view(), name='city'),
     path('auth/' ,Auth.as_view(), name='auth'),
     path('test',Test.as_view(), name='test'),

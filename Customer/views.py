@@ -1,4 +1,5 @@
 from inspect import Parameter
+import json
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from requests import delete
@@ -83,7 +84,7 @@ class CParcel(APIView):
 
 
 class City(APIView):
-    permission_classes = (AllowAny, )
+    permission_classes = (IsAuthenticated, )
     def get(self, request, format=None):
         City=request.query_params['Name']
         obj=Parcel.objects.filter(type=1)
@@ -91,19 +92,19 @@ class City(APIView):
             CityList=[]
             
             for i in obj:
-                CityList.append({"id" : i.id, "name":i.Name})
+                CityList.append({"id" : i.id, "name":i.name})
                 
             
             return JsonResponse(CityList, safe=False)
 
-        obj=get_object_or_404(obj,Name=City)
+        obj=get_object_or_404(obj,name=City)
         
         data=serialize('geojson',[obj],geometry_field='poly')
         
-        return JsonResponse(data,status=201)
+        return HttpResponse(data)
 
 class Country(APIView):
-    permission_classes = (AllowAny, )
+    permission_classes = (IsAuthenticated, )
     def get(self, request, format=None):
         Country=request.query_params['Name']
         obj=Parcel.objects.filter(type=2)
@@ -111,7 +112,7 @@ class Country(APIView):
             CountryList=[]
             
             for i in obj:
-                CountryList.append({"id" : i.id, "name":i.Name})
+                CountryList.append({"id" : i.id, "name":i.name})
                 
             
             return JsonResponse(CountryList, safe=False)
@@ -120,7 +121,7 @@ class Country(APIView):
         
         data=serialize('geojson',[obj],geometry_field='poly')
         
-        return JsonResponse(data,status=201)
+        return HttpResponse(data)
 
 
 
