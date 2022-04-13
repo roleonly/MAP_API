@@ -167,6 +167,7 @@ color_txt = """
 nv     0   0   0   0
 """
 pastelcolors=["f94144","f3722c","f8961e","f9844a","f9c74f","90be6d","43aa8b","4d908e","577590","277da1"]
+colortopick=['#ec9282', '#f6f7f7',  '#85bbd8']
 def create_color_table2(elevation):
     color_text=""
     currentElevation=0
@@ -174,7 +175,7 @@ def create_color_table2(elevation):
     while(True):
         currentElevation+=elevation
         colorCounter+=1
-        color_text+=(createString(currentElevation,pastelcolors[colorCounter%len(pastelcolors)]))
+        color_text+=(createString(currentElevation,pastelcolors[colortopick%len(colortopick)]))
         if(currentElevation>=10000):
             break
     color_text += "1     5   5   5\n"
