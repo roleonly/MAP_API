@@ -1,3 +1,4 @@
+from asyncio.windows_events import NULL
 from inspect import Parameter
 import json
 from django.http import HttpResponse, JsonResponse
@@ -14,9 +15,9 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from drf_yasg.utils import swagger_auto_schema
 from django.core.serializers import serialize
-
+from _functions.geotiff_dem_colorization import * 
 from django.shortcuts import get_object_or_404
-
+from xml.dom import minidom
 import numpy as np
 import rasterio
 from rasterio.windows import Window
@@ -32,12 +33,24 @@ import rasterio
 import rasterio.features
 import rasterio.warp
 from pandas import DataFrame as df
-
+from PIL import Image
 from rest_framework.views import APIView
 import sqlalchemy
 import rasterio
 from rasterio.io import MemoryFile
 from django.http import FileResponse
+from xml.dom import minidom
+from _functions.get_random_string import *
+
+
+def read_from_xml(FilePath):
+    mydoc=minidom.parse(FilePath)
+    coords=mydoc.getElementsByTagName('GeoTransform')[0].firstChild.data
+    my_list = coords.split(",")
+    a=float(my_list[0])
+    b=float(my_list[3])
+    return [a,b]
+
 
 class Auth(APIView):
     #serializer_class = AuthSerializer    
@@ -108,6 +121,7 @@ class Country(APIView):
     def get(self, request, format=None):
         Country=request.query_params['Name']
         obj=Parcel.objects.filter(type=2)
+        
         if Country=="":
             CountryList=[]
             
@@ -138,12 +152,16 @@ class Test(APIView):
         return HttpResponse('OK')
 
 class Raster(APIView):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (AllowAny, )
     
     def get(self, request, format=None):
-        cId=request.query_params['cparcel']
-        CP=CustomerParcel.objects.get(id=cId)
-        geom=CP.poly
+        NAME=request.query_params['name']
+        print(NAME)
+        obj=Parcel.objects.filter(type=1)
+        obj=get_object_or_404(obj,name=NAME)
+        
+        
+        geom=obj.poly
         url = sqlalchemy.engine.url.URL(drivername='postgresql+psycopg2',
                                         database='DB_API',
                                         username='gisadmin',
@@ -155,29 +173,51 @@ class Raster(APIView):
         
         sql = "SELECT ST_AsGDALRaster(ST_Union(rast), 'GTiff') AS tiff FROM worldmap as r WHERE ST_Intersects(ST_GeomFromText('"+str(geom)+"'),r.rast)"
         
+        filename=get_random_String(16)
+
         with engine.connect() as cnxn:
             result = cnxn.execute(sql)
         
             data= result.fetchall() 
             tif_data = data[0][0]
-            asd=MemoryFile(tif_data.tobytes())
-            asdf=asd.open()
+            #tiff data write to file
+            with open('static/'+filename+'.tif', 'wb') as f:
+                f.write(tif_data)
+            print(tif_data.shape)
         
-            data=asdf.read(1)
-        #delete values if they are not in the polygon
-            data=np.ma.masked_where(data<-1500,data)
-            #write data to file
-            with rasterio.open('test.tif', 'w', driver='GTiff',
-                                 height=asdf.height, width=asdf.width, count=1,
-                                    dtype=asdf.dtypes[0],
-                                    crs={'init': 'epsg:4326'},
-                                    transform=asdf.transform) as dst:
-                dst.write(data,1)
-
+        #    asd=MemoryFile(tif_data.tobytes())
+        #    
+        #    asdf=asd.open()
+        #    
+        #    data=asdf.read(1)
+        ##delete values if they are not in the polygon
+        #    
+        #    
+        #   
+        #    
+        #    #write data to file
+        #    with rasterio.open('static/test.tif', 'w', driver='GTiff',    #GTiff
+        #                         height=asdf.height, width=asdf.width, count=1,
+        #                            dtype=asdf.dtypes[0] ,                  # asdf.dtypes[0],
+        #                            crs={'init': 'epsg:4326'},
+        #                            transform=asdf.transform) as dst:
+        #        dst.write(data,1)
+        #        print (dst.height,dst.width)
+        #        
+            GeoTIFF_to_color_dem('static/'+filename+'.tif',200).colorize_dem()
+            
+            coords=read_from_xml('static/'+filename+'.png.aux.xml')
+            with Image.open('static/'+filename+'.png') as im:
+                width,height=im.size
+                
+            return JsonResponse( {'url':'http://localhost:8000/static/'+filename+'.png','coords':coords , 'imageW':width,'imageH':height } ,status=200)
             #send file to api endpoint
-            return HttpResponse(open('test.tif', 'rb'), content_type='image/png')
             
             
+            #return HttpResponse(open('static/test.tif', 'rb'), content_type='image/png')
+            
+            
+
              
             
             

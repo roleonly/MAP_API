@@ -23,7 +23,7 @@ class CustomerParcel(models.Model):
     owner = models.ForeignKey(Customer, on_delete=models.CASCADE)
     poly= models.MultiPolygonField(srid=4326)
     
-
+    
     def __str__(self):
         return self.name
     class Meta:
