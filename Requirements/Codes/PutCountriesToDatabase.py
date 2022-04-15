@@ -1,7 +1,6 @@
 
-
-from Customer.models import Parcel
 import json
+from ...MAP_AUTH import *
 from django.contrib.gis.geos import fromstr
 
 from django.contrib.gis.geos import MultiPolygon
@@ -49,3 +48,4 @@ def PutCitiesToDatabase():
             
         city.save()
 
+PutCitiesToDatabase()
