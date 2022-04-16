@@ -9,9 +9,10 @@ class AuthRegisterSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'password')
     
     def create(self, validated_data):
-        user = User.objects.create_user(
+        user = User.objects.create_user( 
             validated_data['username'],
-            validated_data['password']
+            None,
+            validated_data['password'],
         )
         return user
 

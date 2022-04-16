@@ -9,7 +9,8 @@ from drf_yasg.utils import swagger_auto_schema
 from MAP_PARCEL.models import Parcel
 from django.http import HttpResponse, JsonResponse
 
-
+from django.core.serializers import serialize
+from django.shortcuts import get_object_or_404
 
 class ParcelView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -18,26 +19,21 @@ class ParcelView(APIView):
     
     def get(self,request):
         
-        type=request.GET.get('type')
-        if type=='1':
-            parcels=Parcel.objects.filter(type=1)
-            return JsonResponse({"parcels":list(parcels.values())},safe=False)
-        elif type=='2':
-            parcels=Parcel.objects.filter(type=2)
-            return JsonResponse({"parcels":list(parcels.values())},safe=False)
-        elif type=='3':
-            parcels=Parcel.objects.filter(owner=request.user)
-            try:
-                serializer=ParcelSerializer(parcels,many=True)
-                return JsonResponse(serializer.data,safe=False)
-            except Exception as e:
-                return JsonResponse({},safe=False)
-        else:
+       
+        parcels=Parcel.objects.filter(owner=request.user)
+        try:
+            serializer=ParcelSerializer(parcels,many=True)
+            return JsonResponse(serializer.data,safe=False)
+        except Exception as e:
             return JsonResponse({},safe=False)
+       
 
     @swagger_auto_schema(request_body=ParcelSerializer)
     def post(self,request):
-        serializer=ParcelSerializer(data=request.data)
+        parcel=request.data
+        parcel['owner']=request.user.id
+        serializer=ParcelSerializer(data=parcel)
+        
         if serializer.is_valid():
             
             serializer.save()
@@ -53,4 +49,43 @@ class ParcelView(APIView):
         else:
             return HttpResponse('You can not delete predefined parcels')
 
+class CityView(APIView):
+    permission_classes = (IsAuthenticated, )
+    def get(self, request, format=None):
+        City=request.query_params['Name']
+        obj=Parcel.objects.filter(type=1)
+        if City=="":
+            CityList=[]
+            
+            for i in obj:
+                CityList.append({"id" : i.id, "name":i.name})
+                
+            
+            return JsonResponse(CityList, safe=False)
 
+        obj=get_object_or_404(obj,name=City)
+        
+        data=serialize('geojson',[obj],geometry_field='poly')
+        
+        return HttpResponse(data)
+
+class CountryView(APIView):
+    permission_classes = (IsAuthenticated, )
+    def get(self, request, format=None):
+        Country=request.query_params['Name']
+        obj=Parcel.objects.filter(type=2)
+        
+        if Country=="":
+            CountryList=[]
+            
+            for i in obj:
+                CountryList.append({"id" : i.id, "name":i.name})
+                
+            
+            return JsonResponse(CountryList, safe=False)
+
+        obj=get_object_or_404(obj,name=Country)
+        
+        data=serialize('geojson',[obj],geometry_field='poly')
+        
+        return HttpResponse(data)
