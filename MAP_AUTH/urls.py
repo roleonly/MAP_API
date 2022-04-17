@@ -9,7 +9,7 @@ from rest_framework_simplejwt.views import (
 urlpatterns = [
      
     # jwt token login
-    path('token/login', TokenObtainPairView.as_view(), name='token_login'),                   
+    path('token/login/', TokenObtainPairView.as_view(), name='token_login'),                   
     # jwt token refresh
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),                 
     # jwt token logout

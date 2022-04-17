@@ -11,81 +11,130 @@ from django.http import HttpResponse, JsonResponse
 
 from django.core.serializers import serialize
 from django.shortcuts import get_object_or_404
+import json
+from django.contrib.gis.geos import fromstr
+
+from django.contrib.gis.geos import MultiPolygon
+
+
+class MapParcel(APIView):
+    permission_classes = (IsAuthenticated,)
+    
+    def post(self, request):
+        
+        data=request.data
+        newparcel=Parcel()
+        newparcel.name='user-'+data['name']
+        newparcel.type=data['type']
+        
+        poly=json.loads(data['poly'])
+        
+        poly.pop('id')
+        if poly['geometry']['type']=="MultiPolygon" :
+            poly=json.dumps(poly['geometry'])
+            
+            
+        else:   
+            poly=MultiPolygon(   fromstr(json.dumps(poly['geometry'])   ))
+        
+        newparcel.poly=poly
+        newparcel.save()
+        newparcel.owner.add(request.user)
+        newparcel.save()
+        return Response(status=status.HTTP_201_CREATED)
+        
+        
+        
+        
+        
 
 class ParcelView(APIView):
     permission_classes = (IsAuthenticated,)
     
  
     
-    def get(self,request):
+   
         
+        
+    def get(self, request, format=None):
+        permission_classes = (IsAuthenticated, )
+        
+        parcels=Parcel.objects.filter(owner=request.user)       
        
-        parcels=Parcel.objects.filter(owner=request.user)
-        try:
-            serializer=ParcelSerializer(parcels,many=True)
-            return JsonResponse(serializer.data,safe=False)
-        except Exception as e:
-            return JsonResponse({},safe=False)
-       
+        parcel_list=[]
+             
+        for i in parcels:
+            parcel_list.append({"id" : i.id, "name":i.name})
+                
+            
+        return JsonResponse(parcel_list, safe=False)
+
+        
+                  
+    
 
     @swagger_auto_schema(request_body=ParcelSerializer)
     def post(self,request):
-        parcel=request.data
-        parcel['owner']=request.user.id
-        serializer=ParcelSerializer(data=parcel)
+        permission_classes = (IsAuthenticated, )
+        id=request.GET.get('id')
+        parcel=Parcel.objects.get(pk=id)
+        parcel.owner.add(request.user)
+        parcel.save()
         
-        if serializer.is_valid():
-            
-            serializer.save()
-            return JsonResponse(serializer.data,status=201)
-        return JsonResponse(serializer.errors,status=400)
+       
+        
+        
+        return JsonResponse({'id':parcel.id,'name':parcel.name},status=201,safe=False)
+        
 
     def delete(self,request):
+        permission_classes = (IsAuthenticated, )
         id=request.GET.get('id')
         parcel=Parcel.objects.get(pk=id)
         if parcel.type==3:
             parcel.delete()
             return JsonResponse({},status=204)
         else:
-            return HttpResponse('You can not delete predefined parcels')
+            parcel.owner.remove(request.user)
+            return JsonResponse({'id':parcel.id,'name':parcel.name},status=201,safe=False)
 
 class CityView(APIView):
     permission_classes = (IsAuthenticated, )
     def get(self, request, format=None):
-        City=request.query_params['Name']
+        
         obj=Parcel.objects.filter(type=1)
-        if City=="":
-            CityList=[]
+        
+        CityList=[]
             
-            for i in obj:
-                CityList.append({"id" : i.id, "name":i.name})
+        for i in obj:
+            CityList.append({"id" : i.id, "name":i.name})
                 
             
-            return JsonResponse(CityList, safe=False)
+        return JsonResponse(CityList, safe=False)
 
-        obj=get_object_or_404(obj,name=City)
         
-        data=serialize('geojson',[obj],geometry_field='poly')
-        
-        return HttpResponse(data)
 
 class CountryView(APIView):
     permission_classes = (IsAuthenticated, )
     def get(self, request, format=None):
-        Country=request.query_params['Name']
+        
         obj=Parcel.objects.filter(type=2)
         
-        if Country=="":
-            CountryList=[]
+        
+        CountryList=[]
             
-            for i in obj:
-                CountryList.append({"id" : i.id, "name":i.name})
+        for i in obj:
+            CountryList.append({"id" : i.id, "name":i.name})
                 
             
-            return JsonResponse(CountryList, safe=False)
+        return JsonResponse(CountryList, safe=False)
 
-        obj=get_object_or_404(obj,name=Country)
-        
+      
+
+class GeometryView(APIView):
+    permission_classes = (IsAuthenticated, )
+    def get(self, request, format=None):
+        id=request.GET.get('id')
+        obj=get_object_or_404(Parcel,id=id)
         data=serialize('geojson',[obj],geometry_field='poly')
-        
         return HttpResponse(data)

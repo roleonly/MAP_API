@@ -42,7 +42,8 @@ urlpatterns = [
     path('auth/', include('MAP_AUTH.urls')), 
     #MAP_PARCEL/urls.py Included
     path('parcel/', include('MAP_PARCEL.urls')),
-
+    #MAP_RASTER/urls.py Included
+    path('raster/', include('MAP_RASTER.urls')),
     #SWAGGER mai Page Documentation
     path('', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     # For download static files / raster images
