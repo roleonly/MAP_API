@@ -153,14 +153,16 @@ class GetColoredImages(APIView)  :
             
         
         outputPath='static/'+get_random_String(16)+'.png'
-        GeoTIFF_to_color_dem(rast.URL, outputPath).colorize_dem()
-        tif=raster_image( )
-        tif.URL='http://127.0.0.1:8000/'+outputPath
-        tif.xmlURL=tif.URL+'.aux.xml'
-        tif.raster=rast
-        tif.user=request.user
-        tif.save()
-        serialized=RasterPNGSerializer(tif)
+        a=GeoTIFF_to_color_dem(rast.URL, outputPath).colorize_dem()
+        
+        png=raster_image( )
+        png.URL='http://127.0.0.1:8000/'+outputPath
+        png.xmlURL=png.URL+'.aux.xml'
+        png.raster=rast
+        png.user=request.user
+        png.color_range=a
+        png.save()
+        serialized=RasterPNGSerializer(png)
         return JsonResponse(serialized.data, safe=False)
 
     def delete(self, request, format=None):

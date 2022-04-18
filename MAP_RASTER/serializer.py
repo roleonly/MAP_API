@@ -1,3 +1,4 @@
+from turtle import color
 from rest_framework import serializers
 
 from MAP_PARCEL.models import Parcel
@@ -12,4 +13,4 @@ class RasterTiffSerializer(serializers.ModelSerializer):
 class RasterPNGSerializer(serializers.ModelSerializer):
     class Meta:
         model = raster_image
-        fields = ('id', 'URL','xmlURL')    
+        fields = ('id', 'URL','xmlURL','color_range')    

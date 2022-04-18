@@ -129,6 +129,7 @@ class GeoTIFF_to_color_dem:
         self.path = path
         self.ds = gdal.Open(self.path)
         self.output_path = output_path
+        self.colors=""
         
         self.min, self.max = self._min_max()
         
@@ -182,7 +183,8 @@ class GeoTIFF_to_color_dem:
         # write the array back to the vsi file
         vsi_data.GetRasterBand(1).WriteArray(elevation_array)
         self.difference_raster = vsi_data
-        color_tab = save_color_table(create_color_table(rgb,self.calculate_quantiles()))
+        self.colors=create_color_table(rgb,self.calculate_quantiles())
+        color_tab = save_color_table(self.colors)
         # take the difference between the two datasets then save them to another vsi memory driver
         
 
@@ -227,7 +229,7 @@ class GeoTIFF_to_color_dem:
         # import os
         # os.remove(color_file)
         print("Colorized DEM saved to: " + self.output_path)
-        return self.output_path
+        return self.colors
     
 
 #GeoTIFF_to_color_dem("static/25.tif", "static/ahmet.png").colorize_dem()

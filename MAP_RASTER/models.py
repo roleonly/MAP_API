@@ -34,7 +34,7 @@ class raster_image(models.Model):
     xmlURL= models.CharField(max_length=500 ,default='')
     raster = models.ForeignKey(raster_tiff, on_delete=models.CASCADE, null=True)
     user=models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-                
+    color_range=models.CharField(max_length=1000, default='')            
    
     
 
