@@ -1,5 +1,5 @@
 from asyncio.windows_events import NULL
-from inspect import Parameter
+
 import json
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
@@ -7,21 +7,22 @@ from requests import delete
 from MAP_PARCEL.models import Parcel
 
 from rest_framework.views import APIView
-from rest_framework.decorators import api_view
-from django.contrib.auth.models import User
-from drf_yasg.views import get_schema_view
-from drf_yasg import openapi 
-from drf_yasg.utils import swagger_auto_schema
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from drf_yasg.utils import swagger_auto_schema
-from django.core.serializers import serialize
 
+from django.contrib.auth.models import User
+
+
+
+from rest_framework.permissions import AllowAny, IsAuthenticated
+
+
+from _Functions.geotiff_dem_colorization import GeoTIFF_to_color_dem
 from django.shortcuts import get_object_or_404
 from xml.dom import minidom
 import numpy as np
 import rasterio
 from rasterio.windows import Window
-
+import random
+import string
 import os
 from pathlib import Path
 from rasterio.plot import show
@@ -32,16 +33,14 @@ from django.http import  HttpResponse, JsonResponse
 import rasterio
 import rasterio.features
 import rasterio.warp
-#from pandas import DataFrame as df
-#from PIL import Image
+
 from rest_framework.views import APIView
 import sqlalchemy
 import rasterio
-from rasterio.io import MemoryFile
-from django.http import FileResponse
+
 from xml.dom import minidom
-from MAP_RASTER.serializer import RasterTiffSerializer
-from MAP_RASTER.models import raster_tiff
+from MAP_RASTER.serializer import RasterTiffSerializer,RasterPNGSerializer
+from MAP_RASTER.models import raster_tiff,raster_image
 
 def createRasterTiff(rid:int):
     obj=Parcel.objects.get(id=rid)
@@ -82,7 +81,7 @@ def createRasterTiff(rid:int):
             rast.elevation_max=data.max()
             rast.elevation_min=data.min()
             rast.scale=src.meta['transform'][0]
-            rast.URL='static/'+str(rid)+'.tif'
+            rast.URL='http://127.0.0.1:8000/static/'+str(rid)+'.tif'
             rast.parcel=obj
             rast.raster_image=None
             rast.save()
@@ -96,7 +95,11 @@ def createRasterTiff(rid:int):
     
 
 
-
+def get_random_String(length):
+    # choose from all lowercase letter
+    letters = string.ascii_lowercase
+    result_str = ''.join(random.choice(letters) for i in range(length))
+    return result_str
 
 
 
@@ -122,8 +125,52 @@ class GetRasterImage(APIView):
             serialized=RasterTiffSerializer(rast)
             return JsonResponse(serialized.data, safe=False)
 
+class GetColoredImages(APIView)  :      
+    permission_classes = (IsAuthenticated, )
+    def get(self, request, format=None):
+        objID=request.GET.get('rid')
         
+        while True:
+
+            try:
+                rast=raster_tiff.objects.get(parcel_id=objID)
+                break
+            except:
+                continue
+
+        user=request.user
+        PNG=raster_image.objects.filter(raster_id=rast.id,user=user)
+        if PNG.exists():
+            serialized=RasterPNGSerializer(PNG,many=True)
+            return JsonResponse(serialized.data, safe=False)
+        else:
+            return JsonResponse({}, safe=False)
+    
+    def post(self, request, format=None):
+        objID=request.GET.get('rid')
         
+        rast=raster_tiff.objects.get(parcel_id=objID)
+            
+        
+        outputPath='static/'+get_random_String(16)+'.png'
+        GeoTIFF_to_color_dem(rast.URL, outputPath).colorize_dem()
+        tif=raster_image( )
+        tif.URL='http://127.0.0.1:8000/'+outputPath
+        tif.xmlURL=tif.URL+'.aux.xml'
+        tif.raster=rast
+        tif.user=request.user
+        tif.save()
+        serialized=RasterPNGSerializer(tif)
+        return JsonResponse(serialized.data, safe=False)
+
+    def delete(self, request, format=None):
+        objID=request.GET.get('rid')
+        print(objID)
+        
+        PNG=raster_image.objects.filter(id=objID)
+        PNG.delete()
+        return JsonResponse({}, safe=False)
+
        
                 
         

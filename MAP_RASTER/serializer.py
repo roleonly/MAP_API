@@ -8,4 +8,8 @@ class RasterTiffSerializer(serializers.ModelSerializer):
     class Meta:
         model = raster_tiff
         fields = ('id', 'latitude', 'longitude', 'URL', 'elevation_max', 'elevation_min', 'width', 'height', 'scale')
-    
+
+class RasterPNGSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = raster_image
+        fields = ('id', 'URL','xmlURL')    

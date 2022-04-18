@@ -31,14 +31,15 @@ class raster_image(models.Model):
     
     id = models.AutoField(primary_key=True)
     URL = models.CharField(max_length=500) 
+    xmlURL= models.CharField(max_length=500 ,default='')
     raster = models.ForeignKey(raster_tiff, on_delete=models.CASCADE, null=True)
-
+    user=models.ForeignKey(User, on_delete=models.CASCADE, null=True)
                 
    
     
 
     def __str__(self):
-        return self.name
+        return self.raster
     class Meta:
         db_table = 'rasterimage'
 
