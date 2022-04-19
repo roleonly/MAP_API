@@ -1,9 +1,11 @@
 
 import json
-from ...MAP_AUTH import *
+
 from django.contrib.gis.geos import fromstr
 
-from django.contrib.gis.geos import MultiPolygon
+import django.contrib.gis.geos as gs
+
+from MAP_PARCEL.models import Parcel
 
 def delparcels():
     parcels=Parcel.objects.all()
@@ -24,7 +26,7 @@ def PutCountriesToDatabase():
             
             
         else:   
-            countryMap.poly=MultiPolygon(   fromstr(json.dumps(i['geometry'])   ))
+            countryMap.poly=gs.MultiPolygon(   fromstr(json.dumps(i['geometry'])   ))
             
             
         countryMap.save()
@@ -43,9 +45,8 @@ def PutCitiesToDatabase():
             
             
         else:   
-            city.poly=MultiPolygon(   fromstr(json.dumps(i['geometry'])   ))
+            city.poly=gs.MultiPolygon(   fromstr(json.dumps(i['geometry'])   ))
             
             
-        city.save()
+        #city.save()
 
-PutCitiesToDatabase()
