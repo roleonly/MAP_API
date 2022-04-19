@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-6^v40c#0l(@gtss=y^9+$=mxk+#k!m+c%kjg7nh%1e^79iypwx
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -86,10 +86,10 @@ WSGI_APPLICATION = 'MAP_CORE.wsgi.application'
 DATABASES = {
     'default': {
          'ENGINE': 'django.contrib.gis.db.backends.postgis',
-         'NAME': 'DB_API', # Name of your db
-         'USER': 'gisadmin', # Name of the user
+         'NAME': 'spatialdb.cg3ycy9vkgam.eu-north-1.rds.amazonaws.com', # Name of your db
+         'USER': 'postgres', # Name of the user
          'PASSWORD': 'Role1453', # Password
-         'HOST': '127.0.0.1',
+         'HOST':'spatialdb.cg3ycy9vkgam.eu-north-1.rds.amazonaws.com',
          'PORT': '5432',
         }
     
