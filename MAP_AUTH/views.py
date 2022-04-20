@@ -55,11 +55,6 @@ class RegisterView(APIView):
 
 
 
-import json
-from MAP_PARCEL.models import Parcel
-from django.contrib.gis.geos import fromstr
-
-from django.contrib.gis.geos import MultiPolygon
 
 class Test(APIView):
    
