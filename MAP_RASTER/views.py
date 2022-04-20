@@ -46,14 +46,14 @@ def createRasterTiff(rid:int):
     obj=Parcel.objects.get(id=rid)
     geom=obj.poly
     url = sqlalchemy.engine.url.URL(drivername='postgresql+psycopg2',
-                                        database='DB_API',
-                                        username='gisadmin',
+                                        database='spatialdb.cg3ycy9vkgam.eu-north-1.rds.amazonaws.com',
+                                        username='postgres',
                                         password='Role1453',
-                                        host='localhost',
+                                        host='spatialdb.cg3ycy9vkgam.eu-north-1.rds.amazonaws.com',
                                         port=5432)
     engine = sqlalchemy.create_engine(url)
         
-        
+       
     sql = "SELECT ST_AsGDALRaster(ST_Union(rast), 'GTiff') AS tiff FROM worldmap as r WHERE ST_Intersects(ST_GeomFromText('"+str(geom)+"'),r.rast)"
     
 
@@ -81,7 +81,7 @@ def createRasterTiff(rid:int):
             rast.elevation_max=data.max()
             rast.elevation_min=data.min()
             rast.scale=src.meta['transform'][0]
-            rast.URL='http://127.0.0.1:8000/static/'+str(rid)+'.tif'
+            rast.URL='http://13.53.186.53/static/'+str(rid)+'.tif'
             rast.parcel=obj
             rast.raster_image=None
             rast.save()
@@ -156,7 +156,7 @@ class GetColoredImages(APIView)  :
         a=GeoTIFF_to_color_dem(rast.URL, outputPath).colorize_dem()
         
         png=raster_image( )
-        png.URL='http://127.0.0.1:8000/'+outputPath
+        png.URL='http://13.53.186.53/'+outputPath
         png.xmlURL=png.URL+'.aux.xml'
         png.raster=rast
         png.user=request.user
