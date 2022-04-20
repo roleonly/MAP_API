@@ -1,4 +1,4 @@
-from distutils import filelist
+
 
 import subprocess
 import os
@@ -6,11 +6,14 @@ import os
 
 
 
-    
+#get all files in directory and subdirectories
+path="C:/1"
+files=os.listdir(path) 
+
+print (files)
 
 
-
-cmds='raster2pgsql.exe -I -a -C -s 4326 -t 100x100 -F -M E:\\DATA\\turkey\\2\\* public.worldmap | psql' + ' "host=127.0.0.1 port=5432 dbname=DB_API user=gisadmin password=Role1453"'
+cmds='raster2pgsql.exe -I -c -s 4326 -t 100x100 -F -M C:\1\n36e026.hgt public.worldmap | psql -U postgres --dbname=spatialdb.cg3ycy9vkgam.eu-north-1.rds.amazonaws.com --host=spatialdb.cg3ycy9vkgam.eu-north-1.rds.amazonaws.com --port=5432'
 
 subprocess.call(cmds, shell=True)
 print (cmds)

@@ -144,3 +144,4 @@ subprocess.call(cmds, shell=True)
 #to play with sql queries
 pip install sqlalchemy
 
+raster2pgsql.exe -I -c -s 4326 -t 100x100 -F -M C:\1\* public.worldmap | psql -U postgres --dbname=spatialdb.cg3ycy9vkgam.eu-north-1.rds.amazonaws.com --host=spatialdb.cg3ycy9vkgam.eu-north-1.rds.amazonaws.com --port=5432
