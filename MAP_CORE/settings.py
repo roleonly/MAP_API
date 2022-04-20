@@ -27,7 +27,14 @@ SECRET_KEY = 'django-insecure-6^v40c#0l(@gtss=y^9+$=mxk+#k!m+c%kjg7nh%1e^79iypwx
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
-
+CORS_ORIGIN_WHITELIST = [ "http://95.12.237.91:80",]
+CORS_ALLOWED_ORIGIN_REGEXES = [
+   
+   "http://95.12.237.91:80",
+    "http://95.12.237.91:8000",
+     "http://95.12.237.91:4200",
+      "http://95.12.237.91:80",
+]
 
 # Application definition
 
@@ -51,8 +58,9 @@ INSTALLED_APPS = [
    
 ]
 
+
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",
+   "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -61,6 +69,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.contrib.auth.middleware.RemoteUserMiddleware'
     
 ]
 CORS_ORIGIN_ALLOW_ALL = True
@@ -193,4 +202,9 @@ SIMPLE_JWT = {
 STATICFILES_DIRS = [
     BASE_DIR / "static",
     '/var/www/static/',
+]
+
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.RemoteUserBackend',
 ]
